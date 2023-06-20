@@ -1,21 +1,17 @@
 use bevy::{
-    prelude::{BuildChildren, Commands, ImageBundle, NodeBundle, Res, TextBundle},
-    text::{TextSection, TextStyle},
-    ui::{JustifyContent, Size, Style, UiRect, Val},
+    prelude::{BuildChildren, Commands, ImageBundle, NodeBundle, TextBundle},
+    ui::{FlexDirection, JustifyContent, Size, Style, UiRect, Val},
 };
 
-use crate::state::{
-    assets::{FontAssets, ImageAssets},
-    colours::{BORDER_COLOUR, INNER_COLOUR, TEXT_COLOUR},
-};
+use crate::state::colours::{BORDER_COLOUR, INNER_COLOUR};
 
-use super::story::StoryDisplay;
+use super::{image::ImageDisplay, story::StoryDisplay};
 
-pub fn setup(mut commands: Commands, images: Res<ImageAssets>) {
+pub fn setup(mut commands: Commands) {
     commands.spawn(FRAMING()).with_children(|parent| {
         parent.spawn(BORDER()).with_children(|parent| {
             parent.spawn(IMAGE_AREA()).with_children(|parent| {
-                parent.spawn(IMAGE(images));
+                parent.spawn(IMAGE()).insert(ImageDisplay);
             });
             parent.spawn(STORY_AREA()).with_children(|parent| {
                 parent.spawn(STORY()).insert(StoryDisplay);
@@ -68,7 +64,7 @@ const IMAGE_AREA: fn() -> NodeBundle = || NodeBundle {
     ..Default::default()
 };
 
-const IMAGE: fn(Res<ImageAssets>) -> ImageBundle = |images| ImageBundle {
+const IMAGE: fn() -> ImageBundle = || ImageBundle {
     style: Style {
         size: Size {
             width: Val::Percent(100.0),
@@ -76,14 +72,13 @@ const IMAGE: fn(Res<ImageAssets>) -> ImageBundle = |images| ImageBundle {
         },
         ..Default::default()
     },
-    image: images.les.clone().into(),
     ..Default::default()
 };
 
 const STORY_AREA: fn() -> NodeBundle = || NodeBundle {
     style: Style {
         size: Size {
-            width: Val::Percent(44.25),
+            width: Val::Percent(54.25),
             height: Val::Percent(100.0),
         },
         padding: UiRect {
@@ -109,25 +104,19 @@ const STORY: fn() -> TextBundle = || TextBundle {
     ..Default::default()
 };
 
-pub const STORY_SECTION: fn(String, &Res<FontAssets>) -> TextSection = |value, fonts| TextSection {
-    value,
-    style: TextStyle {
-        font: fonts.regular.clone(),
-        font_size: 48.0,
-        color: TEXT_COLOUR,
-    },
-};
-
 const ACTIONS_AREA: fn() -> NodeBundle = || NodeBundle {
     style: Style {
         size: Size {
-            width: Val::Percent(19.25),
+            width: Val::Percent(9.25),
             height: Val::Percent(100.0),
         },
         padding: UiRect {
-            bottom: Val::Percent(3.0),
-            ..Default::default()
+            bottom: Val::Percent(0.5),
+            top: Val::Percent(0.5),
+            left: Val::Percent(1.0),
+            right: Val::Percent(1.0),
         },
+        flex_direction: FlexDirection::Column,
         ..Default::default()
     },
     background_color: INNER_COLOUR,
