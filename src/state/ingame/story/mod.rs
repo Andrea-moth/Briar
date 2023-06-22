@@ -3,11 +3,13 @@ pub mod dialogue_library;
 use std::collections::VecDeque;
 
 use bevy::{
+    input::mouse::{MouseScrollUnit, MouseWheel},
     prelude::{
-        Color, Component, EventReader, Handle, Input, IntoSystemConfig, KeyCode, OnUpdate, Plugin,
-        Query, Res, ResMut, Resource, With,
+        Color, Component, DetectChanges, EventReader, Handle, Input, IntoSystemConfig, KeyCode,
+        Node, OnUpdate, Parent, Plugin, Query, Res, ResMut, Resource, Style, With,
     },
     text::{Font, Text, TextSection, TextStyle},
+    ui::Val,
 };
 
 use crate::state::{assets::FontAssets, colours::TEXT_COLOUR, GameState};
@@ -33,8 +35,11 @@ pub enum StoryEvent {
 #[derive(Clone)]
 pub struct Paragraph(Vec<Snippet>);
 
-impl From<Vec<(&'static str, Character, Style)>> for Paragraph {
-    fn from(value: Vec<(&'static str, Character, Style)>) -> Self {
+impl<T> From<Vec<(T, Character, FontStyle)>> for Paragraph
+where
+    T: ToString,
+{
+    fn from(value: Vec<(T, Character, FontStyle)>) -> Self {
         Self(
             value
                 .into_iter()
@@ -68,10 +73,13 @@ impl Paragraph {
 }
 
 #[derive(Clone)]
-struct Snippet(String, Character, Style);
+struct Snippet(String, Character, FontStyle);
 
-impl From<(&'static str, Character, Style)> for Snippet {
-    fn from(value: (&'static str, Character, Style)) -> Self {
+impl<T> From<(T, Character, FontStyle)> for Snippet
+where
+    T: ToString,
+{
+    fn from(value: (T, Character, FontStyle)) -> Self {
         Self(value.0.to_string(), value.1, value.2)
     }
 }
@@ -93,13 +101,13 @@ impl Into<Color> for Character {
 }
 
 #[derive(Clone)]
-pub enum Style {
+pub enum FontStyle {
     None,
     Bold,
     Italic,
     BoldItalic,
 }
-impl Style {
+impl FontStyle {
     fn into_font(self, fonts: &Res<FontAssets>) -> Handle<Font> {
         match self {
             Self::None => fonts.regular.clone(),
@@ -136,6 +144,9 @@ fn update_story_display(
     fonts: Res<FontAssets>,
     input: Res<Input<KeyCode>>,
 ) {
+    if story.is_changed() {
+        return;
+    }
     if input.just_pressed(KeyCode::Space) {
         for mut text in &mut text_query {
             let Some(new_paragraph) = story.get_latest_paragraph() else {

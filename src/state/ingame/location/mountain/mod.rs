@@ -2,7 +2,7 @@ use self::mansion::Mansion;
 
 pub mod mansion;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum MountainArea {
     Mansion(Mansion),
 }

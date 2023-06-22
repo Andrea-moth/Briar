@@ -1,6 +1,6 @@
 use bevy::{
     prelude::{BuildChildren, Commands, ImageBundle, NodeBundle, TextBundle},
-    ui::{FlexDirection, JustifyContent, Size, Style, UiRect, Val},
+    ui::{FlexDirection, JustifyContent, Overflow, Size, Style, UiRect, Val},
 };
 
 use crate::state::colours::{BORDER_COLOUR, INNER_COLOUR};
@@ -87,9 +87,10 @@ const STORY_AREA: fn() -> NodeBundle = || NodeBundle {
             top: Val::Percent(0.5),
             bottom: Val::Percent(0.5),
         },
+        overflow: Overflow::Hidden,
         ..Default::default()
     },
-    background_color: INNER_COLOUR,
+    background_color: INNER_COLOUR.into(),
     ..Default::default()
 };
 

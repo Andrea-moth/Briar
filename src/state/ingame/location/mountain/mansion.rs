@@ -1,15 +1,19 @@
 #![allow(dead_code)]
 use crate::state::ingame::location::ChangeArea;
 
-#[derive(Default, Debug)]
+#[derive(Debug, Clone)]
 pub enum Mansion {
-    #[default]
     Attic,
     FloorTwo(FloorTwo),
     FloorOne(FloorOne),
     Ground(Ground),
     Basement(Basement),
     Gardens(Gardens),
+}
+impl Default for Mansion {
+    fn default() -> Self {
+        Self::FloorOne(FloorOne::ServantsRoom)
+    }
 }
 impl ChangeArea for Mansion {
     fn check_change(&self, new: &Self) -> bool {
@@ -21,7 +25,7 @@ impl ChangeArea for Mansion {
             ) => true,
             (
                 &Self::FloorOne(FloorOne::Stairs),
-                &Self::Basement(Basement::MainRoom) | Self::Ground(Ground::Stairs),
+                &Self::FloorTwo(FloorTwo::Stairs) | Self::Ground(Ground::Stairs),
             ) => true,
             (
                 &Self::Ground(Ground::Stairs),
@@ -44,7 +48,7 @@ impl ChangeArea for Mansion {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum FloorTwo {
     Stairs,
     Library,
@@ -55,7 +59,7 @@ impl ChangeArea for FloorTwo {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum FloorOne {
     Stairs,
     VictoriasRoom,
@@ -74,7 +78,7 @@ impl ChangeArea for FloorOne {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Ground {
     Stairs,
     Hallway,
@@ -104,7 +108,7 @@ impl ChangeArea for Ground {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Basement {
     MainRoom,
     MerchantsEntrance,
@@ -115,7 +119,7 @@ impl ChangeArea for Basement {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Gardens {
     Entrance,
     Grounds,
